@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: arms
+
+  datasource:
+    url: ${ARMS_DB_URL:jdbc:postgresql://localhost:5432/arms}
+    username: ${ARMS_DB_USERNAME:arms}
+    password: ${ARMS_DB_PASSWORD:arms}
+
+  jpa:
+    hibernate:
+      # Schema is owned by the Flyway migration (SRS C-04: delivered database schema)
+      ddl-auto: none
+    open-in-view: false
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  # SRS 7.4: user-visible text lives in resource files outside the compiled code
+  messages:
+    basename: messages
+    encoding: UTF-8
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: 8080
+  servlet:
+    session:
+      # SRS FR-7.5: session terminated after a configurable period of inactivity
+      timeout: ${ARMS_SESSION_TIMEOUT:30m}
+      cookie:
+        # SRS 3.4: session state carried in a cookie marked HttpOnly
+        http-only: true
+        same-site: strict
+  error:
+    include-stacktrace: never
+    include-message: never
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+arms:
+  cors:
+    allowed-origins: ${ARMS_CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+  security:
+    # Seed credentials created on first start only; change the password at first sign-in.
+    default-admin-username: ${ARMS_DEFAULT_ADMIN_USERNAME:admin}
+    default-admin-password: ${ARMS_DEFAULT_ADMIN_PASSWORD:admin123}
+
+logging:
+  level:
+    com.arms: INFO
+    org.flywaydb: INFO
